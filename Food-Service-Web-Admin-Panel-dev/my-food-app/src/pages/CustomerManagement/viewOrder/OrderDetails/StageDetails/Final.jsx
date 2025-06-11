@@ -12,7 +12,7 @@ const Final = () => {
     <div className="lg:w-1/2 md:w-9/12 border border-black-10 rounded-md mx-2 my-3">
       <div className="p-2">
         <div className="tabs-row">
-          <h6 className="text-primary font-medium pb-1">
+          <h6 className=" font-medium pb-1">
             Order Completion Status
           </h6>
         </div>

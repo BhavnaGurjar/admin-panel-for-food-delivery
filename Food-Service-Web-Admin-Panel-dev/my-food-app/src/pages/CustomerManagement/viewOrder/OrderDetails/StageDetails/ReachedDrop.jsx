@@ -23,7 +23,7 @@ const ReachedDrop = () => {
     <div className="mx-2">
       <div className="lg:w-1/2 md:w-9/12 border border-black-10 rounded-md mt-3 p-2">
         <div className="tabs-row">
-          <h6 className="text-primary font-medium  pb-1">
+          <h6 className=" font-medium  pb-1">
             Arrival & Location Tracking
           </h6>
         </div>
@@ -41,7 +41,7 @@ const ReachedDrop = () => {
         {/* OTP Verification & Regeneration section */}
         <div className="lg:w-1/2 md:w-9/12 border border-black-10 rounded-md p-2">
           <div className="tabs-row">
-            <h6 className="text-primary font-medium  pb-1">
+            <h6 className=" font-medium  pb-1">
               OTP Verification & Regeneration
             </h6>
           </div>
@@ -88,7 +88,7 @@ const ReachedDrop = () => {
 
       <div className="lg:w-1/2 md:w-9/12 border border-black-10 rounded-md mt-3 p-2">
         <div className="tabs-row">
-          <h6 className="text-primary font-medium  pb-1">
+          <h6 className=" font-medium  pb-1">
             SLA Compliance & Customer Support
           </h6>
         </div>
@@ -112,7 +112,7 @@ const ReachedDrop = () => {
 
       <div className="lg:w-1/2 md:w-9/12 border border-black-10 rounded-md my-3 p-2">
         <div className="tabs-row">
-          <h6 className="text-primary font-medium  pb-1">
+          <h6 className=" font-medium  pb-1">
             Complaint Handling & Order Finalization
           </h6>
         </div>

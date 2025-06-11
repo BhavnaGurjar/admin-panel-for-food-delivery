@@ -16,7 +16,7 @@ const Incoming = () => {
     <div className="mx-2">
       <div className="lg:w-1/2 md:w-9/12 border border-black-10 rounded-md mt-3 p-2">
         <div className="tabs-row">
-          <h6 className="text-primary font-medium pb-1">
+          <h6 className=" font-medium pb-1">
             Order Placement & Status Details
           </h6>
         </div>
@@ -37,7 +37,7 @@ const Incoming = () => {
       {/* Partner Response & Status */}
       <div className="lg:w-1/2 md:w-9/12 border border-black-10 rounded-md mt-3 p-2">
         <div className="tabs-row">
-          <h6 className="text-primary font-medium  pb-1">
+          <h6 className=" font-medium  pb-1">
             Cancellation Window & Timings
           </h6>
         </div>
@@ -58,7 +58,7 @@ const Incoming = () => {
       {/* SLA Monitoring */}
       <div className="lg:w-1/2 md:w-9/12 border border-black-10 rounded-md my-3 p-2">
         <div className="tabs-row">
-          <h6 className="text-primary font-medium  pb-1">
+          <h6 className=" font-medium  pb-1">
             Service Level Agreement (SLA) Tracking
           </h6>
         </div>

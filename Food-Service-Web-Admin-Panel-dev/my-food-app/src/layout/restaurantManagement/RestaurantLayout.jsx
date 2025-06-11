@@ -1,9 +1,12 @@
+import { useState, useEffect } from "react";
 import { Outlet, Link, useLocation, useParams } from "react-router-dom";
 import { Breadcrumbs } from "../../components";
+import Cookies from 'js-cookie';
 
 const RestaurantLayout = () => {
   const location = useLocation();
-  const { restaurantId, id, verificationStatus, rejectionMessage,rejectionCount, stepCount } = useParams();
+  const [store, setStore] = useState(0);
+  const { restaurantDisplayId, restaurantId, id, verificationStatus, rejectionCount } = useParams();
 
   const breadcrumbItems = [
     {
@@ -16,12 +19,12 @@ const RestaurantLayout = () => {
   const sidebarLinks = [
     {
       name: "1 Restaurant Information",
-      link: `/restaurant-management/approvals/restaurant-info/${id}/${restaurantId}/${verificationStatus}/${rejectionMessage}/${rejectionCount}/1`,
+      link: `/restaurant-management/approvals/restaurant-info/${restaurantDisplayId}/${id}/${restaurantId}/${verificationStatus}/${rejectionCount}/1`,
       subLinks: [],
     },
     {
       name: "2 Restaurant Documents",
-      link: `/restaurant-management/approvals/restaurant-docs/${id}/${restaurantId}/${verificationStatus}/${rejectionMessage}/${rejectionCount}/2`,
+      link: `/restaurant-management/approvals/restaurant-docs/${restaurantDisplayId}/${id}/${restaurantId}/${verificationStatus}/${rejectionCount}/2`,
       subLinks: [
         { name: "2.1 PAN Details", link: "" },
         { name: "2.2 GST Details", link: "" },
@@ -31,7 +34,7 @@ const RestaurantLayout = () => {
     },
     {
       name: "3 Menu & Operational Details",
-      link: `/restaurant-management/approvals/restaurant-menu/${id}/${restaurantId}/${verificationStatus}/${rejectionMessage}/${rejectionCount}/3`,
+      link: `/restaurant-management/approvals/restaurant-menu/${restaurantDisplayId}/${id}/${restaurantId}/${verificationStatus}/${rejectionCount}/3`,
       subLinks: [
         { name: "3.1 Menu Images", link: "" },
         { name: "3.2 Restaurant Profile Image", link: "" },
@@ -41,13 +44,10 @@ const RestaurantLayout = () => {
     },
     {
       name: "4 Restaurant Partner Contract",
-      link: `/restaurant-management/approvals/restaurant-contract/${id}/${restaurantId}/${verificationStatus}/${rejectionMessage}/${rejectionCount}/4`,
+      link: `/restaurant-management/approvals/restaurant-contract/${restaurantDisplayId}/${id}/${restaurantId}/${verificationStatus}/${rejectionCount}/4`,
       subLinks: [],
     },
   ];
-
-  // currentStep ko parse karte hain stepCount se, agar nahi mile toh 0
-  const currentStep = stepCount ? parseInt(stepCount, 10) : 0;
 
   return (
     <div className="scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
@@ -63,12 +63,10 @@ const RestaurantLayout = () => {
             <div className="bg-[rgba(249,250,252,1)] text-[0.95rem] border border-[rgba(0,0,0,0.05)] rounded-md p-4 h-full">
               <ul>
                 {sidebarLinks.map((item, index) => {
-                  // isActive check
                   const isActive =
                     location.pathname === item.link ||
                     location.pathname.startsWith(item.link);
 
-                  // targetStep extract kar rahe hain URL ke end se
                   const targetStepMatch = item.link.match(/\/(\d+)$/);
                   const targetStep = targetStepMatch ? parseInt(targetStepMatch[1], 10) : 0;
 
@@ -77,20 +75,31 @@ const RestaurantLayout = () => {
                       <Link
                         to={item.link}
                         onClick={(e) => {
-                          if (verificationStatus === "APPROVED") {
-                            if (targetStep > currentStep) {
+                          if (verificationStatus === "PENDING") {
+                            const maxAllowedStep = store + 1;
+                            console.log("Store (completed):", store);
+                            console.log("Clicked Step:", targetStep);
+                            console.log("Allowed up to:", maxAllowedStep);
+
+                            if (targetStep > maxAllowedStep) {
                               e.preventDefault();
+                              console.log("Navigation blocked for step:", targetStep);
+                            } else {
+                              console.log("Navigation allowed for step:", targetStep);
                             }
                           }
                         }}
-                        className={`block ${isActive ? "text-blue font-medium" : "text-blue opacity-75"}`}
+                        className={`block ${
+                          isActive ? "text-blue font-medium" : "text-blue opacity-75"
+                        }`}
                       >
                         {item.name}
                       </Link>
+
                       {item.subLinks.length > 0 && (
                         <ul className="pl-4 mt-3">
                           {item.subLinks.map((subItem, subIndex) => (
-                            <li key={subIndex} className="mt-3 ">
+                            <li key={subIndex} className="mt-3">
                               <span
                                 className={`${
                                   isActive ? "text-blue" : "text-blue opacity-75"

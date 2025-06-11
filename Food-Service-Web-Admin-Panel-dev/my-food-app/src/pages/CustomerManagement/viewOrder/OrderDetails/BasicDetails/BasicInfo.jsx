@@ -25,7 +25,7 @@ const BasicInfo = () => {
         <div className="flex-1 space-y-4">
           {/* Customer Details */}
           <div className="border border-black-10 rounded-md bg-white p-3">
-            <h6 className="text-primary font-medium text-base border-b border-black-10 pb-1">
+            <h6 className=" font-medium text-base border-b border-black-10 pb-1">
               Customer Details
             </h6>
             <DataRow label="Customer Name" value={renderValue(customer.name)} />
@@ -45,7 +45,7 @@ const BasicInfo = () => {
 
           {/* Restaurant Details */}
           <div className="border border-black-10 rounded-md bg-white  p-3">
-            <h6 className="text-primary font-medium text-base border-b border-black-10 pb-1">
+            <h6 className=" font-medium text-base border-b border-black-10 pb-1">
               Restaurant Details
             </h6>
             <DataRow
@@ -60,7 +60,7 @@ const BasicInfo = () => {
 
           {/* Delivery Details */}
           <div className="border border-black-10 rounded-md bg-white  p-3">
-            <h6 className="text-primary font-medium text-base border-b border-black-10 pb-1">
+            <h6 className=" font-medium text-base border-b border-black-10 pb-1">
               Order Assignment & Delivery Details
             </h6>
             <DataRow
@@ -87,7 +87,7 @@ const BasicInfo = () => {
 
           {/* Additional Info */}
           <div className="border border-black-10 rounded-md bg-white p-3">
-            <h6 className="text-primary font-medium text-base border-b border-black-10 pb-1">
+            <h6 className=" font-medium text-base border-b border-black-10 pb-1">
               Additional Information
             </h6>
             <DataRow
@@ -105,7 +105,7 @@ const BasicInfo = () => {
         <div className="flex-1 space-y-4">
           {/* Order Details */}
           <div className="border border-black-10 rounded-md bg-white p-3">
-            <h6 className="text-primary font-medium text-base border-b border-black-10 pb-1">
+            <h6 className=" font-medium text-base border-b border-black-10 pb-1">
               Order Identification Details
             </h6>
             <DataRow label="Order ID" value={renderValue(order.id)} />
@@ -139,7 +139,7 @@ const BasicInfo = () => {
 
           {/* Payment Info */}
           <div className="border border-black-10 rounded-md bg-white p-3">
-            <h6 className="text-primary font-medium text-base border-b border-black-10 pb-1">
+            <h6 className=" font-medium text-base border-b border-black-10 pb-1">
               Payment & Order Amount Details
             </h6>
             <DataRow
@@ -170,7 +170,7 @@ const BasicInfo = () => {
 
           {/* Timeline Info */}
           <div className="border border-black-10 rounded-md bg-white p-3">
-            <h6 className="text-primary font-medium text-base border-b border-black-10 pb-1">
+            <h6 className=" font-medium text-base border-b border-black-10 pb-1">
               Order Timeline & Status Tracking
             </h6>
             <DataRow

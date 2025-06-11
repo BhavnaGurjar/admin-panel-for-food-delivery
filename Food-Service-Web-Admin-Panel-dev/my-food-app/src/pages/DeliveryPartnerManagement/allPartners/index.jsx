@@ -158,16 +158,19 @@ const AllPartners = () => {
           <Search />
           <div className="flex flex-wrap ms-auto justify-end items-center gap-3">
             <CustomFilterDropdown
+              labelText="Select Vehicle"
               filterOptions={vehicleFilterOptions}
               value={selectedVehicleFilter}
               handleOnChange={setSelectedVehicleFilter}
             />
             <CustomFilterDropdown
+              labelText="Select Status"
               filterOptions={statusFilterOptions}
               value={selectedStatusFilter}
               handleOnChange={setSelectedStatusFilter}
             />
             <CustomFilterDropdown
+              labelText="Select Location"
               filterOptions={locationFilterOptions}
               value={selectedLocationFilter}
               handleOnChange={setSelectedLocationFilter}

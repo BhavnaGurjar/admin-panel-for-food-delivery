@@ -3,13 +3,13 @@ import { Icons } from "../../assets";
 
 const CustomFilterDropdown = ({
   filterOptions,
-  value,
+  value = [],
   handleOnChange,
-  selectedCount = 0, // 🔸 Accept count as prop
+  selectedCount = null,
   icon = <Icons.Filter />,
+  labelText = "Filter",
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedLabel, setSelectedLabel] = useState(null);
   const dropdownRef = useRef();
 
   useEffect(() => {
@@ -22,58 +22,56 @@ const CustomFilterDropdown = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleSelect = (label) => {
-    if (selectedLabel === label) {
-      setSelectedLabel(null);
-      handleOnChange(null);
-    } else {
-      setSelectedLabel(label);
-      handleOnChange(label);
-    }
+  const handleToggle = (status) => {
+    let newValue = value.includes(status)
+      ? value.filter((v) => v !== status)
+      : [...value, status];
+
+    handleOnChange(newValue.length > 0 ? newValue : []);
   };
 
   const handleClear = () => {
-    setSelectedLabel(null);
-    handleOnChange(null);
+    handleOnChange([]);
     setIsOpen(false);
   };
 
   return (
-    <div className="inline-block text-left" ref={dropdownRef}>
+    <div className="relative inline-block text-left" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center text-[0.9rem] justify-between gap-2 px-4 py-2 border border-black-20 rounded-lg bg-transparent font-medium transition"
+        className="flex items-center justify-between gap-2 px-4 py-2 border border-black-10 rounded-lg bg-white font-medium text-sm text-black hover:bg-black-20 focus:outline-none transition"
       >
         {icon}
         <span>
-          Filter {selectedLabel ? <span>({selectedCount})</span> : null}
+          Filter {selectedCount ? <span>({selectedCount})</span> : null}
         </span>
       </button>
 
       {isOpen && (
-        <div className="absolute z-10 mt-1 bg-white shadow-lg rounded">
+        <div className="absolute z-10 mt-1 bg-white shadow-md rounded">
           {filterOptions.map((option, index) => {
             const plainLabel = option.label.replace(/\s?\(\d+\)/, "");
+            const statusValue = option.value;
             return (
               <div
                 key={index}
                 className="flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer"
-                onClick={() => handleSelect(option.label)}
+                onClick={() => handleToggle(statusValue)}
               >
                 <input
                   type="checkbox"
                   readOnly
                   className="cursor-pointer w-4 h-4 mr-2 accent-primary"
-                  checked={selectedLabel === option.label}
+                  checked={value.includes(statusValue)}
                 />
-                <label className="text-sm">{plainLabel}</label>
+                <label className="text-sm text-gray-800">{plainLabel}</label>
               </div>
             );
           })}
 
-          {selectedLabel && (
+          {value.length > 0 && (
             <div
-              className="text-primary text-sm font-medium px-3 py-2 cursor-pointer border-t border-primary"
+              className="text-primary text-sm font-medium px-4 py-2 border-t border-gray-200 cursor-pointer hover:bg-gray-50 transition"
               onClick={handleClear}
             >
               Clear
@@ -84,5 +82,6 @@ const CustomFilterDropdown = ({
     </div>
   );
 };
+
 
 export default CustomFilterDropdown;

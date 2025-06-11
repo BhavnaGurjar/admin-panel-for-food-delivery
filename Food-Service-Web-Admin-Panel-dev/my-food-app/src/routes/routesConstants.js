@@ -11,13 +11,13 @@ export const appRouteConstants = {
 
 export const restaurantRouteConstants = {
   approvalVerification: "/approvals",
-  restaurantInfo: "/approvals/restaurant-info/:id/:restaurantId/:verificationStatus/:rejectionMessage/:rejectionCount/:stepCount",
-  restaurantDocs: "/approvals/restaurant-docs/:id/:restaurantId/:verificationStatus/:rejectionMessage/:rejectionCount/:stepCount",
-  restaurantContract: "/approvals/restaurant-contract/:id/:restaurantId/:verificationStatus/:rejectionMessage/:rejectionCount/:stepCount",
-  restaurantMenu: "/approvals/restaurant-menu/:id/:restaurantId/:verificationStatus/:rejectionMessage/:rejectionCount/:stepCount",
+  restaurantInfo: "/approvals/restaurant-info/:restaurantDisplayId/:id/:restaurantId/:verificationStatus/:rejectionCount/:stepCount",
+  restaurantDocs: "/approvals/restaurant-docs/:restaurantDisplayId/:id/:restaurantId/:verificationStatus/:rejectionCount/:stepCount",
+  restaurantContract: "/approvals/restaurant-contract/:restaurantDisplayId/:id/:restaurantId/:verificationStatus/:rejectionCount/:stepCount",
+  restaurantMenu: "/approvals/restaurant-menu/:restaurantDisplayId/:id/:restaurantId/:verificationStatus/:rejectionCount/:stepCount",
 
   restaurantOnboarding: "/onboarding",
-  restaurantOnboardingDetails: "/onboarding/restaurant-details",
+  restaurantOnboardingDetails: "/onboarding/restaurant-details/:id",
 
   // Menu Management
   restaurantMenuDashboard: "/menu",

@@ -233,12 +233,14 @@ const Application = () => {
                 );
                 setSelectedStatusFilter(selectedOption?.value ?? null);
               }}
+              labelText="Select Status"
             />
             <DateRangeDropdown
               selectedRange={selectedRange}
               onDateRangeChange={(range) => setSelectedRange(range)}
             />
             <CustomFilterDropdown
+              labelText="Select Location"
               filterOptions={locationFilterOptions}
               value={selectedLocationFilter}
               handleOnChange={(value) => {

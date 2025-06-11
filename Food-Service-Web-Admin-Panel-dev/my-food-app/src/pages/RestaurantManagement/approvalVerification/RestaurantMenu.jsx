@@ -1,30 +1,40 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Formik, Form, Field } from "formik";
+import Cookies from "js-cookie";
 import { Icons } from "../../../assets";
 import { textareaSchema } from "../../../schema";
 import { useUpdateTicketMutation } from "../../../apis/ticket";
 import { CustomSpinner, CommonModal, ImageModal } from "../../../components";
 import { useGetRestaurantByRestaurantIdQuery } from "../../../apis/restaurant";
+import { useStepStore } from "../../../store/StepStore"; // Zustand store
 
 const RestaurantMenu = () => {
   const navigate = useNavigate();
-  const { restaurantId, id, verificationStatus, stepCount,rejectionMessage,rejectionStep } = useParams();
+ const {
+  id,
+  restaurantDisplayId,
+  restaurantId,
+  verificationStatus,
+  rejectionMessage,
+  rejectionStep,
+  stepCount
+} = useParams();
   const [modalImage, setModalImage] = useState("");
+  const [store,setStore] =useState(0);
+  const [readOnly, setReadOnly] = useState(false);
   const [isChecked, setIsChecked] = useState(verificationStatus === "REJECTED");
   const { data: restaurantData, isLoading } =
     useGetRestaurantByRestaurantIdQuery({
       restaurantId,
       stepCount: 3,
     });
-
+const stepCountFromStore = useStepStore((state) => state.stepCount);
+  const setStepCount = useStepStore((state) => state.setStep);
   const [modalShow, setModalShow] = useState(false);
   const [rejectmodalShow, setRejectModalShow] = useState(false);
   const [updateTicketStatus, { isLoading: isUpdateLoading }] =
     useUpdateTicketMutation();
-
-  const [rejectMessage, setRejectMessage] = useState("");  // New state for rejection message
-
   const restaurantInfo = restaurantData?.data || {};
   const {
     menuImages = [],
@@ -32,6 +42,43 @@ const RestaurantMenu = () => {
     cuisines = [],
     operationalHours = {},
   } = restaurantInfo;
+   useEffect(() => {
+       const cookieValue = Cookies.get("step"); 
+       console.log("✅cookie value:", cookieValue);
+       if (cookieValue) {
+         try {
+           const parsed = JSON.parse(cookieValue); 
+           const stepCount = parsed?.state?.stepCount;
+           setStore(stepCount);
+           console.log("✅ Step Count from cookie:", stepCount);
+         } catch (error) {
+           console.error("❌ Error parsing cookie value:", error);
+         }
+       } else {
+         console.log("❌ No 'step' cookie found");
+       }
+     }, []);
+    
+     useEffect(() => {
+       if (verificationStatus === "PENDING" &&
+       store > 2 &&
+       store <= 5 ) {
+         setIsChecked(true);
+        setReadOnly(true);
+         console.log(stepCountFromStore);
+       } else {
+         setIsChecked(false);
+       }
+   }, [stepCountFromStore, verificationStatus, stepCount,store]);
+     
+   const handleCheckboxChange = (e) => {
+       const checked = e.target.checked;
+       setIsChecked(checked);
+     console.log('checked 1 ',stepCount);
+       if (checked && verificationStatus === "PENDING") {
+         setStepCount(stepCount); 
+       }
+     };
 
   const daysOfWeek = [
     "Monday",
@@ -57,10 +104,8 @@ const RestaurantMenu = () => {
         rejectionStep: stepCount
       };
       await updateTicketStatus(payload);
-      setRejectMessage(message);
       setRejectModalShow(false);
       navigate("/restaurant-management/approvals");
-      setIsChecked(true);
     } catch (error) {
       console.error(error);
     }
@@ -79,12 +124,12 @@ const RestaurantMenu = () => {
             menuImages.map((imgUrl, index) => (
               <div
                 key={index}
-                className="flex items-center w-36 h-36 rounded p-2 bg-[rgba(243,244,246,1)] border-black-10 border "
+                className="flex items-center justify-center overflow-hidden w-36 h-36 rounded p-2 bg-[rgba(243,244,246,1)] border-black-10 border "
               >
                 <img
                   src={imgUrl}
                   alt={`Menu Item ${index + 1}`}
-                  className="rounded object-cover w-[7.5rem] h-[7.5rem] cursor-pointer"
+                  className="rounded object-cover w-full h-full cursor-pointer"
                   onClick={() => handleImageClick(imgUrl)}
                 />
               </div>
@@ -185,16 +230,16 @@ const RestaurantMenu = () => {
 
       {/* Checkbox and rejection message */}
       <div className="flex justify-between items-center">
-        {verificationStatus === "APPROVED" ? (
-          <div className="flex flex-col gap-1 pt-3">
+        {verificationStatus === "PENDING" ? (
+          <div className="flex flex-col gap-1">
             <div className="flex flex-row items-center gap-2">
               <input
-                id="consent-check"
-                type="checkbox"
-                className="m-0 cursor-pointer"
-                checked={isChecked}
-                onChange={(e) => setIsChecked(e.target.checked)}
-              />
+                  id="consent-check"
+                  type="checkbox"
+                  className={`m-0 ${readOnly ? "pointer-events-none cursor-not-allowed" : "cursor-pointer"}`}
+                  checked={isChecked}
+                  onChange={handleCheckboxChange}
+                />
               <label htmlFor="consent-check" className="text-sm">
                 Checked and Reviewed the above information.
               </label>
@@ -212,39 +257,38 @@ const RestaurantMenu = () => {
             )}
 
             {/* Show rejection message below the checkbox */}
-            {rejectionMessage && (
-              <div className="mt-2 text-sm">
+           {(rejectionStep===stepCount) && rejectionMessage && (
+              <div className="mt-1 text-sm">
                 <span className="font-medium">Rejection Reason :</span> <span className="text-red-600">{rejectionMessage}</span>
               </div>
             )}
         {/* Action Buttons */}
         <div
-          className={`m-2 ${verificationStatus === "REJECTED" ? "hidden" : "block"
-            }`}
+        className={`m-2 ${verificationStatus === "REJECTED" || verificationStatus === "APPROVED" ? "hidden" : "block"}`}
         >
           <div className="flex justify-end gap-1">
             <button
-              className={`px-4 py-1.5 w-20 border rounded-full transition ${verificationStatus === "APPROVED" && !isChecked
+              className={`px-4 py-1.5 w-20 border rounded-full transition ${verificationStatus === "PENDING" && !isChecked
                   ? "text-red-500 border-red-500 cursor-not-allowed"
                   : "text-red-500 border-red-500 hover:bg-red-500 hover:text-white"
                 }`}
               onClick={() => setRejectModalShow(true)}
-              disabled={verificationStatus === "APPROVED" && !isChecked}
+              disabled={verificationStatus === "PENDING" && !isChecked}
             >
               Reject
             </button>
 
             <button
-              className={`px-4 py-1.5 w-20 border rounded-full transition ${verificationStatus === "APPROVED" && !isChecked
+              className={`px-4 py-1.5 w-20 border rounded-full transition ${verificationStatus === "PENDING" && !isChecked
                   ? "border-green-500 text-green-500 cursor-not-allowed"
                   : "border-green-500 text-green-500 hover:bg-green-500 hover:text-white"
                 }`}
-              disabled={verificationStatus === "APPROVED" && !isChecked}
-              onClick={() =>
+              disabled={verificationStatus === "PENDING" && !isChecked}
+              onClick={() => {
                 navigate(
-                  `/restaurant-management/approvals/restaurant-contract/${id}/${restaurantId}/${verificationStatus}/${row.verificationStatus}/${row.message}/${row.rejectionStep}/4`
-                )
-              }
+                  `/restaurant-management/approvals/restaurant-contract/${id}/${restaurantDisplayId}/${restaurantId}/${verificationStatus}/${rejectionStep}/4`
+                );
+              }}
             >
               Next
             </button>

@@ -28,13 +28,13 @@ const ImageModal = ({ show, onHide, imageUrl, heading }) => {
      </div>
 
         {/* Image Container */}
-        <div className="w-[23.125rem] h-[23.125rem]">
-          <img
-            src={imageUrl}
-            alt="Modal"
-            className="w-full h-full rounded object-cover"
-          />
-        </div>
+        <div className="w-[23.125rem] h-[23.125rem] overflow-hidden flex items-center justify-center">
+ <img
+  src={imageUrl}
+  alt="Modal"
+  className="w-full h-auto rounded object-contain"
+/>
+</div>
       </div>
     </div>
   );

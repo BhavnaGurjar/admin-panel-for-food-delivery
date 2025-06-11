@@ -1,31 +1,43 @@
-import { useState } from "react";
-import { Formik, Form, Field } from "formik";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Formik, Form, Field } from "formik";
+import Cookies from "js-cookie";
 import { Icons } from "../../../assets";
 import { textareaSchema } from "../../../schema";
+import { useStepStore } from "../../../store/StepStore";
 import { useUpdateTicketMutation } from "../../../apis/ticket";
 import { CustomSpinner, CommonModal } from "../../../components";
 import { useGetRestaurantByRestaurantIdQuery } from "../../../apis/restaurant";
 
+
 const RestaurantInfo = () => {
   const navigate = useNavigate();
-  const { restaurantId, id, verificationStatus, stepCount,rejectionMessage,rejectionStep } = useParams();
-
-  const [isChecked, setIsChecked] = useState(verificationStatus === "REJECTED");
-  const [rejectMessage, setRejectMessage] = useState("");
-  const [rejectModalShow, setRejectModalShow] = useState(false);
-
-  const [updateTicketStatus] = useUpdateTicketMutation();
-
-  const { data: restaurantData, isLoading } = useGetRestaurantByRestaurantIdQuery({
+  const {
+    restaurantDisplayId,
+    id,
     restaurantId,
-    stepCount: 1,
-  });
+    verificationStatus,
+    rejectionMessage,
+    rejectionStep,
+    stepCount
+  } = useParams();
 
+  const stepCountFromStore = useStepStore((state) => state.stepCount);
+  const setStepCount = useStepStore((state) => state.setStep);
+  const [store, setStore] = useState(0);
+  const [isChecked, setIsChecked] = useState(false);
+  const [rejectModalShow, setRejectModalShow] = useState(false);
+  const [readOnly, setReadOnly] = useState(false);
+  const [updateTicketStatus] = useUpdateTicketMutation();
+  const { data: restaurantData, isLoading } =
+    useGetRestaurantByRestaurantIdQuery({
+      restaurantId,
+      stepCount: 1,
+    });
   const restaurantInfo = restaurantData?.data;
 
   const restaurantDetails = [
-    { label: "Restaurant Id", value: restaurantId, isHighlight: true },
+    { label: "Restaurant Id", value: restaurantDisplayId, isHighlight: true },
     { label: "Restaurant Name", value: restaurantInfo?.resName ?? "N/A" },
     { label: "Owner Name", value: restaurantInfo?.ownerName ?? "N/A" },
     { label: "Email Address", value: restaurantInfo?.ownerEmail ?? "N/A" },
@@ -34,6 +46,43 @@ const RestaurantInfo = () => {
     { label: "City", value: restaurantInfo?.city ?? "N/A" },
     { label: "Landmark", value: restaurantInfo?.landmark ?? "N/A" },
   ];
+  useEffect(() => {
+    const cookieValue = Cookies.get("step");
+    console.log("✅cookie value:", cookieValue);
+    if (cookieValue) {
+      try {
+        const parsed = JSON.parse(cookieValue);
+        const stepCount = parsed?.state?.stepCount;
+        setStore(stepCount);
+        console.log("✅ Step Count from cookie:", stepCount);
+      } catch (error) {
+        console.error("❌ Error parsing cookie value:", error);
+      }
+    } else {
+      console.log("❌ No 'step' cookie found");
+    }
+  }, []);
+
+  useEffect(() => {
+    if (verificationStatus === "PENDING" &&
+      store > 0 &&
+      store <= 5) {
+      setIsChecked(true);
+      setReadOnly(true);
+      console.log(stepCountFromStore);
+    } else {
+      setIsChecked(false);
+    }
+  }, [stepCountFromStore, verificationStatus, stepCount, store]);
+
+  const handleCheckboxChange = (e) => {
+    const checked = e.target.checked;
+    setIsChecked(checked);
+    console.log('checked 1 ', stepCount);
+    if (checked && verificationStatus === "PENDING") {
+      setStepCount(stepCount);
+    }
+  };
 
   const handleReject = async (message) => {
     try {
@@ -42,13 +91,11 @@ const RestaurantInfo = () => {
         ticketType: "RESTAURANT",
         status: "REJECTED",
         message: message,
-        rejectionStep: stepCount
+        rejectionStep: stepCount,
       };
       await updateTicketStatus(payload);
       setRejectModalShow(false);
-      setRejectMessage(message);
       navigate("/restaurant-management/approvals");
-      setIsChecked(true);
     } catch (error) {
       console.error(error);
     }
@@ -79,14 +126,14 @@ const RestaurantInfo = () => {
           </div>
 
           <div className="flex flex-col align-center justify-between">
-            {verificationStatus === "APPROVED" ? (
+            {verificationStatus === "PENDING" ? (
               <div className="flex flex-row items-center gap-2 pt-3">
                 <input
                   id="consent-check"
                   type="checkbox"
-                  className="m-0 cursor-pointer"
+                  className={`m-0 ${readOnly ? "pointer-events-none cursor-not-allowed" : "cursor-pointer"}`}
                   checked={isChecked}
-                  onChange={(e) => setIsChecked(e.target.checked)}
+                  onChange={handleCheckboxChange}
                 />
                 <label htmlFor="consent-check" className="text-sm">
                   Checked and Reviewed the above information.
@@ -94,52 +141,55 @@ const RestaurantInfo = () => {
               </div>
             ) : (
               <div className="flex flex-row items-center gap-2 pt-3">
-                <input id="consent-check" type="checkbox" className="m-0" checked={true} readOnly />
+                <input
+                  id="consent-check"
+                  type="checkbox"
+                  className="m-0"
+                  checked={true}
+                  readOnly
+                />
                 <label htmlFor="consent-check" className="text-sm">
                   Checked and Reviewed the above information.
                 </label>
               </div>
             )}
 
-            {/* Show rejection message below the checkbox */}
-            {rejectionMessage && (
-              <div className="mt-2 text-sm">
-                <span className="font-medium">Rejection Reason :</span> <span className="text-red-600">{rejectionMessage}</span>
+            {(rejectionStep === stepCount) && rejectionMessage && (
+              <div className="mt-1 text-sm">
+                <span className="font-medium">Rejection Reason :</span>{" "}
+                <span className="text-red-600">{rejectionMessage}</span>
               </div>
             )}
-
-            <div
-           
-            >
-              <div className="mt-4 flex justify-end gap-1">
+            {/* ${verificationStatus === "REJECTED"||'APPROVED' ? "hidden" : "block"} BEFORE CODE */}
+            <div className={`m-2 ${verificationStatus === "REJECTED" || verificationStatus === "APPROVED" ? "hidden" : "block"}`}>
+              <div className="mt-2 flex justify-end gap-1">
                 <button
-                  className={`px-4 py-1.5 w-20 border rounded-full transition ${verificationStatus === "APPROVED" && !isChecked
-                      ? "text-red-500 border-red-500 cursor-not-allowed"
-                      : "text-red-500 border-red-500 hover:bg-red-500 hover:text-white"
+                  className={`px-4 py-1.5 w-20 border rounded-full transition ${verificationStatus === "PENDING" && !isChecked
+                    ? "text-red-500 border-red-500 cursor-not-allowed"
+                    : "text-red-500 border-red-500 hover:bg-red-500 hover:text-white"
                     }`}
                   onClick={() => setRejectModalShow(true)}
-                  disabled={verificationStatus === "APPROVED" && !isChecked}
+                  disabled={verificationStatus === "PENDING" && !isChecked}
                 >
                   Reject
                 </button>
 
                 <button
-                  className={`px-4 py-1.5 w-20 border rounded-full transition ${verificationStatus === "APPROVED" && !isChecked
-                      ? "border-green-500 text-green-500 cursor-not-allowed"
-                      : "border-green-500 text-green-500 hover:bg-green-500 hover:text-white"
+                  className={`px-4 py-1.5 w-20 border rounded-full transition ${verificationStatus === "PENDING" && !isChecked
+                    ? "border-green-500 text-green-500 cursor-not-allowed"
+                    : "border-green-500 text-green-500 hover:bg-green-500 hover:text-white"
                     }`}
-                  disabled={verificationStatus === "APPROVED" && !isChecked}
-                  onClick={() =>
+                  disabled={verificationStatus === "PENDING" && !isChecked}
+                  onClick={() => {
                     navigate(
-                      `/restaurant-management/approvals/restaurant-docs/${id}/${restaurantId}/${verificationStatus}/${row.verificationStatus}/${row.message}/${row.rejectionStep}/2`
-                    )
-                  }
+                      `/restaurant-management/approvals/restaurant-docs/${id}/${restaurantDisplayId}/${restaurantId}/${verificationStatus}/${rejectionStep}/2`
+                    );
+                  }}
                 >
                   Next
                 </button>
               </div>
             </div>
-            
           </div>
         </>
       )}
@@ -154,7 +204,7 @@ const RestaurantInfo = () => {
           <CommonModal
             show={rejectModalShow}
             onHide={() => setRejectModalShow(false)}
-            icon={<Icons.Cross2 strokeColor="rgba(255,77,79,1)" strokeWidth='0.125rem' />}
+            icon={<Icons.Cross2 strokeColor="rgba(255,77,79,1)" strokeWidth="0.125rem" />}
             heading="Confirm Rejection"
             subheading="Please provide a reason for rejection."
             body={
@@ -171,7 +221,9 @@ const RestaurantInfo = () => {
                     rows={2}
                   />
                   {touched.message && errors.message && (
-                    <div className="text-red-600 mt-1 text-sm">{errors.message}</div>
+                    <div className="text-red-600 mt-1 text-sm">
+                      {errors.message}
+                    </div>
                   )}
                 </div>
               </Form>

@@ -20,7 +20,7 @@ const DeliveryPenalties = () => {
       <div className="flex flex-col lg:flex-row md:w-9/12 lg:w-full lg:gap-6 gap-4">
         {/* Refund Details */}
         <div className="flex-1 border border-black-10 rounded-md bg-white  p-3">
-          <h6 className="text-primary font-medium text-base pb-1 border-b border-black-10">
+          <h6 className=" font-medium text-base pb-1 border-b border-black-10">
             Refund Details
           </h6>
           <DataRow
@@ -51,7 +51,7 @@ const DeliveryPenalties = () => {
 
         {/* Coupons Details */}
         <div className="flex-1 border border-black-10 rounded-md bg-white  p-3">
-          <h6 className="text-primary font-medium text-base pb-1 border-b border-black-10">
+          <h6 className=" font-medium text-base pb-1 border-b border-black-10">
             Coupons Details
           </h6>
           <DataRow

@@ -16,7 +16,7 @@ const PaginationRow = ({
         disabled
           ? "cursor-not-allowed"
           : active
-          ? "bg-primary border-primary text-white"
+          ? "bg-[rgba(18,115,238,0.1)] border-primary text-primary"
           : "hover:bg-[rgba(241,241,241,1)]"
       }`}
     >

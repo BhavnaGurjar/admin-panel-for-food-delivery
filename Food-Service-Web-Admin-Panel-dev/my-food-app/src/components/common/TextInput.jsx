@@ -8,10 +8,10 @@ const TextInput = ({
   type = "text",
 }) => {
   return (
-    <div className="mb-4">
+    <div className="md:mb-2 lg:mb-3">
       <label
         htmlFor={id}
-        className="font-semibold mb-1 flex items-center gap-1"
+        className="font-medium text-[13px] mb-1 flex items-center gap-1"
       >
         {label}
         {labelIcon && <span>{labelIcon}</span>}
@@ -24,11 +24,9 @@ const TextInput = ({
         disabled={disabled}
         placeholder={placeholder}
         value={formik.values[id]}
-        onChange={(event) =>
-          formik.setFieldValue(id, event?.target?.value)
-        }
+        onChange={(event) => formik.setFieldValue(id, event?.target?.value)}
         onBlur={formik.handleBlur}
-        className={`w-full p-3 border ${
+        className={`w-72 p-2 text-sm border ${
           formik.touched[id] && formik.errors[id]
             ? "border-red-500"
             : "border-gray-300"

@@ -1,17 +1,32 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { Formik, Form, Field } from "formik";
+import Cookies from "js-cookie";
 import { useGetRestaurantByRestaurantIdQuery } from "../../../apis/restaurant";
 import { CustomSpinner, CommonModal } from "../../../components";
 import { useUpdateTicketMutation } from "../../../apis/ticket";
 import { textareaSchema } from "../../../schema/index";
 import { Icons } from "../../../assets";
-
+import { useStepStore } from "../../../store/StepStore"; 
+import { toast } from "react-toastify";
+ 
 const RestaurantContract = () => {
-  const { restaurantId, id, verificationStatus, stepCount,rejectionMessage,rejectionStep } = useParams();
+ const {
+  id,
+  restaurantDisplayId,
+  restaurantId,
+  verificationStatus,
+  rejectionMessage,
+  rejectionStep,
+  stepCount
+} = useParams();
   const [isChecked, setIsChecked] = useState(verificationStatus === "REJECTED");
   const navigate = useNavigate();
+  const [readOnly, setReadOnly] = useState(false);
+  const [store,setStore] =useState(0);
+  const stepCountFromStore = useStepStore((state) => state.stepCount);
+    const setStepCount = useStepStore((state) => state.setStep);
   const { data: restaurantData, isLoading } =
     useGetRestaurantByRestaurantIdQuery({
       restaurantId,
@@ -23,22 +38,56 @@ const RestaurantContract = () => {
   const [updateTicketStatus, { isLoading: isUpdateLoading }] =
     useUpdateTicketMutation();
 
-  const [rejectMessage, setRejectMessage] = useState("");
-
-  const handleReject = async (message) => {
+   useEffect(() => {
+   
+       const cookieValue = Cookies.get("step"); 
+       console.log("✅cookie value:", cookieValue);
+       if (cookieValue) {
+         try {
+           const parsed = JSON.parse(cookieValue); 
+           const stepCount = parsed?.state?.stepCount;
+           setStore(stepCount);
+           console.log("✅ Step Count from cookie:", stepCount);
+         } catch (error) {
+           console.error("❌ Error parsing cookie value:", error);
+         }
+       } else {
+         console.log("❌ No 'step' cookie found");
+       }
+     }, []);
+    
+     useEffect(() => {
+       if (verificationStatus === "PENDING" &&
+       store > 3 &&
+       store <= 5 ) {
+         setIsChecked(true);
+         setReadOnly(true);
+         console.log(stepCountFromStore);
+       } else {
+         setIsChecked(false);
+       }
+   }, [stepCountFromStore, verificationStatus, stepCount,store]);
+     
+   const handleCheckboxChange = (e) => {
+       const checked = e.target.checked;
+       setIsChecked(checked);
+     console.log('checked 1 ',stepCount);
+       if (checked && verificationStatus === "PENDING") {
+         setStepCount(stepCount); 
+       }
+     };
+     const handleReject = async (message) => {
     try {
       const payload = {
-        id,
+        id: restaurantDisplayId,
         ticketType: "RESTAURANT",
         status: "REJECTED",
-       message: message,
+        message: message,
         rejectionStep: stepCount
       };
       await updateTicketStatus(payload);
-      setRejectMessage(message);
       setModalShow(false);
       navigate("/restaurant-management/approvals");
-      setIsChecked(true);
     } catch (error) {
       console.log(error);
     }
@@ -47,14 +96,13 @@ const RestaurantContract = () => {
   const handleApprove = async () => {
     try {
       const payload = {
-        id,
+        id: restaurantDisplayId,
         ticketType: "RESTAURANT",
         status: "APPROVED",
-        message: "",
       };
       setApproveModalShow(false);
       await updateTicketStatus(payload);
-      alert("Approved Successfully!");
+      toast.success("Approved Successfully!");
       navigate("/restaurant-management/approvals");
     } catch (error) {
       console.log(error);
@@ -124,18 +172,17 @@ const RestaurantContract = () => {
           </li>
         </ul>
       </div>
-
       <div className="flex justify-between align-center">
-        {verificationStatus === "APPROVED" ? (
+        {verificationStatus === "PENDING" ? (
           <div className="flex flex-col gap-2 pt-3">
             <div className="flex flex-row items-center gap-2">
               <input
-                id="consent-check"
-                type="checkbox"
-                className="m-0 cursor-pointer"
-                checked={isChecked}
-                onChange={(e) => setIsChecked(e.target.checked)}
-              />
+                  id="consent-check"
+                  type="checkbox"
+                  className={`m-0 ${readOnly ? "pointer-events-none cursor-not-allowed" : "cursor-pointer"}`}
+                  checked={isChecked}
+                  onChange={handleCheckboxChange}
+                />
               <label htmlFor="consent-check" className="text-sm">
                 Checked and Reviewed the above information.
               </label>
@@ -149,44 +196,42 @@ const RestaurantContract = () => {
                 Checked and Reviewed the above information.
               </label>
             </div>
-          {rejectionMessage && (
+          {(rejectionStep===stepCount) && rejectionMessage && (
               <div className="mt-1 text-sm">
                 <span className="font-medium">Rejection Reason :</span> <span className="text-red-600">{rejectionMessage}</span>
               </div>
             )}
           </div>
-        )}
-
-        {/* Action Buttons */}
-        <div
-          className={`m-2 ${verificationStatus === "REJECTED" ? "hidden" : "block"
-            }`}
+        )} 
+      </div>
+       {/* Action Buttons */}
+       <div
+        className={`m-2 ${verificationStatus === "REJECTED" || verificationStatus === "APPROVED" ? "hidden" : "block"} `}
         >
-          <div className="mt-4 flex justify-end gap-1">
+          <div className="mt-2 flex justify-end gap-1">
             <button
-              className={`px-4 py-1.5 w-20 border rounded-full transition ${verificationStatus === "APPROVED" && !isChecked
+              className={`px-4 py-1.5 w-20 border rounded-full transition ${verificationStatus === "PENDING" && !isChecked
                   ? "text-red-500 border-red-500 cursor-not-allowed"
                   : "text-red-500 border-red-500 hover:bg-red-500 hover:text-white"
                 }`}
               onClick={() => setModalShow(true)}
-              disabled={verificationStatus === "APPROVED" && !isChecked}
+              disabled={verificationStatus === "PENDING" && !isChecked}
             >
               Reject
             </button>
 
             <button
-              className={`px-4 py-1.5 w-21 border rounded-full transition ${verificationStatus === "APPROVED" && !isChecked
+              className={`px-4 py-1.5 w-21 border rounded-full transition ${verificationStatus === "PENDING" && !isChecked
                   ? "border-green-500 text-green-500 cursor-not-allowed"
                   : "border-green-500 text-green-500 hover:bg-green-500 hover:text-white"
                 }`}
-              disabled={verificationStatus === "APPROVED" && !isChecked}
+              disabled={verificationStatus === "PENDING" && !isChecked}
               onClick={() => setApproveModalShow(true)}
             >
               Approve
             </button>
           </div>
         </div>
-      </div>
 
       {/* Approve Modal */}
       <CommonModal
@@ -198,7 +243,7 @@ const RestaurantContract = () => {
         heading="Confirm Approval"
         subheading="Are you sure you want to approve this request?"
         primaryButtonText="Approve"
-        primaryButtonColor="text-green-500 border border-green-500 hover:bg-green-500 hover:text-white"
+        primaryButtonColor="bg-green-500 text-white"
         onPrimaryAction={handleApprove}
       />
 

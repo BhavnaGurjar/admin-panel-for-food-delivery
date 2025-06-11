@@ -1,20 +1,34 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Formik, Form, Field } from "formik";
+import Cookies from "js-cookie";
 import { Icons } from "../../../assets";
 import { textareaSchema } from "../../../schema";
 import { useUpdateTicketMutation } from "../../../apis/ticket";
 import { CustomSpinner, CommonModal, ImageModal } from "../../../components";
 import { useGetRestaurantByRestaurantIdQuery } from "../../../apis/restaurant";
+import { useStepStore } from "../../../store/StepStore"; 
 
 const RestaurantDocuments = () => {
   const [modalShow, setModalShow] = useState(false);
   const [modalImage, setModalImage] = useState("");
   const [rejectModalShow, setRejectModalShow] = useState(false);
-  const { restaurantId, id, verificationStatus, stepCount,rejectionMessage,rejectionStep } = useParams();
+  const [readOnly, setReadOnly] = useState(false);
+  const {
+  id,
+  restaurantDisplayId,
+  restaurantId,
+  verificationStatus,
+  rejectionMessage,
+  rejectionStep,
+  stepCount
+} = useParams();
+
   const [isChecked, setIsChecked] = useState(verificationStatus === "REJECTED");
-  const [rejectMessage, setRejectMessage] = useState("");
+  const [store,setStore] =useState(0);
   const navigate = useNavigate();
+const stepCountFromStore = useStepStore((state) => state.stepCount);
+  const setStepCount = useStepStore((state) => state.setStep);
 
   const { data: restaurantData, isLoading } =
     useGetRestaurantByRestaurantIdQuery({
@@ -31,6 +45,43 @@ const RestaurantDocuments = () => {
     setModalImage(image);
     setModalShow(true);
   };
+  useEffect(() => {
+      const cookieValue = Cookies.get("step"); 
+      console.log("✅cookie value:", cookieValue);
+      if (cookieValue) {
+        try {
+          const parsed = JSON.parse(cookieValue); 
+          const stepCount = parsed?.state?.stepCount;
+          setStore(stepCount);
+          console.log("✅ Step Count from cookie:", stepCount);
+        } catch (error) {
+          console.error("❌ Error parsing cookie value:", error);
+        }
+      } else {
+        console.log("❌ No 'step' cookie found");
+      }
+    }, []);
+   
+    useEffect(() => {
+      if (verificationStatus === "PENDING" &&
+      store > 1 &&
+      store <= 5 ) {
+        setIsChecked(true);
+        setReadOnly(true);
+        console.log(stepCountFromStore);
+      } else {
+        setIsChecked(false);
+      }
+  }, [stepCountFromStore, verificationStatus, stepCount,store]);
+    
+  const handleCheckboxChange = (e) => {
+      const checked = e.target.checked;
+      setIsChecked(checked);
+    console.log('checked 1 ',stepCount);
+      if (checked && verificationStatus === "PENDING") {
+        setStepCount(stepCount); 
+      }
+    };
 
   const handleReject = async (message) => {
     try {
@@ -43,9 +94,7 @@ const RestaurantDocuments = () => {
       };
       await updateTicketStatus(payload);
       setRejectModalShow(false);
-      setRejectMessage(message);
       navigate("/restaurant-management/approvals");
-      setIsChecked(true);
     } catch (error) {
       console.log(error);
     }
@@ -159,15 +208,15 @@ const RestaurantDocuments = () => {
           {/* Checkbox & rejection message section */}
           <div className="flex flex-col gap-1">
             <div className="flex align-center justify-between">
-              {verificationStatus === "APPROVED" ? (
+              {verificationStatus === "PENDING" ? (
                 <div className="flex flex-row items-center gap-2 pt-3">
-                  <input
-                    id="consent-check"
-                    type="checkbox"
-                    className="m-0 cursor-pointer"
-                    checked={isChecked}
-                    onChange={(e) => setIsChecked(e.target.checked)}
-                  />
+                 <input
+                  id="consent-check"
+                  type="checkbox"
+                  className={`m-0 ${readOnly ? "pointer-events-none cursor-not-allowed" : "cursor-pointer"}`}
+                  checked={isChecked}
+                  onChange={handleCheckboxChange}
+                />
                   <label htmlFor="consent-check" className="text-sm">
                     Checked and Reviewed the above information.
                   </label>
@@ -187,43 +236,43 @@ const RestaurantDocuments = () => {
                 </div>
               )}
 
-              <div
-                className={`mx-3 mb-3 ${verificationStatus === "REJECTED" ? "hidden" : "block"
-                  }`}
+             
+            </div>
+             <div
+               className={`m-2 ${verificationStatus === "REJECTED" || verificationStatus === "APPROVED" ? "hidden" : "block"}`}
               >
-                <div className="mt-4 flex justify-end gap-1">
+                <div className="mt-2 flex justify-end gap-1">
                   <button
-                    className={`px-4 py-1.5 w-20 border rounded-full transition ${verificationStatus === "APPROVED" && !isChecked
+                    className={`px-4 py-1.5 w-20 border rounded-full transition ${verificationStatus === "PENDING" && !isChecked
                         ? "text-red-500 border-red-500 cursor-not-allowed"
                         : "text-red-500 border-red-500 hover:bg-red-500 hover:text-white"
                       }`}
                     onClick={() => setRejectModalShow(true)}
-                    disabled={verificationStatus === "APPROVED" && !isChecked}
+                    disabled={verificationStatus === "PENDING" && !isChecked}
                   >
                     Reject
                   </button>
 
                   <button
-                    className={`px-4 py-1.5 w-20 border rounded-full transition ${verificationStatus === "APPROVED" && !isChecked
+                    className={`px-4 py-1.5 w-20 border rounded-full transition ${verificationStatus === "PENDING" && !isChecked
                         ? "border-green-500 text-green-500 cursor-not-allowed"
                         : "border-green-500 text-green-500 hover:bg-green-500 hover:text-white"
                       }`}
-                    disabled={verificationStatus === "APPROVED" && !isChecked}
-                    onClick={() =>
-                      navigate(
-                        `/restaurant-management/approvals/restaurant-menu/${id}/${restaurantId}/${verificationStatus}/${row.verificationStatus}/${row.message}/${row.rejectionStep}/3`
-                      )
-                    }
+                    disabled={verificationStatus === "PENDING" && !isChecked}
+                     onClick={() => {
+  navigate(
+    `/restaurant-management/approvals/restaurant-menu/${id}/${restaurantDisplayId}/${restaurantId}/${verificationStatus}/${rejectionStep}/3`
+  );
+}}
                   >
                     Next
                   </button>
                 </div>
               </div>
-            </div>
 
             {/* Show rejection message below the checkbox */}
-            {rejectionMessage && (
-              <div className="mt-2 text-sm">
+           {(rejectionStep===stepCount) && rejectionMessage && (
+              <div className="mt-1 text-sm">
                 <span className="font-medium">Rejection Reason :</span> <span className="text-red-600">{rejectionMessage}</span>
               </div>
             )}

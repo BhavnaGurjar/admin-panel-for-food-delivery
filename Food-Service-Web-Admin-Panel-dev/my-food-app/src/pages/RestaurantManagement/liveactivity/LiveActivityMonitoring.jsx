@@ -24,6 +24,16 @@ const LiveActivityMonitoring = () => {
   const [checked, setChecked] = useState(
     ticketData.map((ticket) => ticket.calls.map(() => false))
   );
+  const [callDurations, setCallDurations] = useState(() =>
+    ticketData.map(ticket => {
+      const [min, sec] = ticket.duration.split(':').map(Number);
+      const total = min * 60 + sec;
+      const perCall = total / ticket.calls.length;
+
+      return ticket.calls.map(() => Math.floor(perCall));
+    })
+  );
+
   const [ticketDurations, setTicketDurations] = useState(() =>
     ticketData.map(ticket => {
       const [min, sec] = ticket.duration.split(':').map(Number);
@@ -31,17 +41,21 @@ const LiveActivityMonitoring = () => {
     })
   );
   useEffect(() => {
-    const intervals = ticketDurations.map((_, idx) =>
-      setInterval(() => {
-        setTicketDurations(prev => {
-          const updated = [...prev];
-          if (updated[idx] > 0) updated[idx] -= 1;
-          return updated;
-        });
-      }, 1000)
-    );
-    return () => intervals.forEach(clearInterval);
+    const interval = setInterval(() => {
+      setTicketDurations(prev =>
+        prev.map(duration => (duration > 0 ? duration - 1 : 0))
+      );
+
+      setCallDurations(prev =>
+        prev.map(callArray =>
+          callArray.map(duration => (duration > 0 ? duration - 1 : 0))
+        )
+      );
+    }, 1000);
+
+    return () => clearInterval(interval);
   }, []);
+
   //call responses modal
   const openModal = (ticketIndex, callIndex) => {
     setModal({ show: true, ticketIndex, callIndex });
@@ -309,20 +323,35 @@ const LiveActivityMonitoring = () => {
       </div>
 
       <div className="shadow-sm bg-white rounded-md mt-3 p-3">
-        <div className="w-fit px-2 py-1 rounded-full flex gap-2 bg-[rgba(246,246,246,1)]">
-          {["Tickets", "Tables"].map((tab) => (
-            <button
-              key={tab}
-              className={`px-4 py-2 text-sm rounded-full transition-all duration-200 ${activeNavTab === tab
-                ? "bg-primary text-white font-medium"
-                : "bg-transparent text-[rgba(95,94,94,1)] hover:text-black"
-                }`}
-              onClick={() => setActiveNavTab(tab)}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
+    <div className="w-fit px-1 py-0.5 flex">
+  {["Tables", "Tickets"].map((tab) => {
+    const isActive = activeNavTab === tab;
+    const strokeColor = isActive
+      ? "rgba(6,110,255,1)"
+      : "rgba(95,94,94,1)";
+
+    return (
+      <button
+        key={tab}
+        className={`py-1.5 px-2.5 text-sm font-medium flex items-center gap-1 border-b ${
+          isActive
+            ? "text-primary border-[rgba(6,110,255,1)] border-b-2"
+            : "bg-transparent text-[rgba(95,94,94,1)] hover:text-black border-gray-300"
+        }`}
+        onClick={() => setActiveNavTab(tab)}
+      >
+        {tab === "Tickets" ? (
+          <Icons.Ticket strokeColor={strokeColor} />
+        ) : (
+          <Icons.Table strokeColor={strokeColor} />
+        )}
+        {tab}
+      </button>
+    );
+  })}
+</div>
+
+
 
         {activeNavTab === "Tickets" ? (
           <div className="px-3 py-2 border border-black-10 rounded-xl mt-3">
@@ -427,12 +456,12 @@ const LiveActivityMonitoring = () => {
                                       <div className="flex gap-2 mt-3 text-base">
                                         <button
                                           onClick={() => setRejectModalShow(true)}
-                                          className="bg-transparent text-red-500 px-4 py-1.5 border border-red-500 rounded-full text-sm hover:bg-red-500 hover:text-white transition-all duration-300">
+                                          className="bg-danger-subtle text-danger px-4 py-1.5 border border-danger rounded-full text-sm hover:bg-red-danger hover:text-white transition-all duration-300">
                                           Reject
                                         </button>
                                         <button
                                           onClick={() => setAcceptModalShow(true)}
-                                          className="hover:bg-green-500 hover:text-white border text-green-500 border-green-500 px-4 py-1.5 rounded-full text-sm transition-all duration-300">
+                                          className="bg-primary text-white border border-primary px-4 py-1.5 rounded-full text-sm transition-all duration-300">
                                           Accept
                                         </button>
                                       </div>
@@ -444,14 +473,16 @@ const LiveActivityMonitoring = () => {
                                       let callsCount = ticket.calls.length;
                                       const key = `${idx}-${i}`;
                                       const response = callResponses[key];
-                                     
+
                                       const perCallTime = totalTime / callsCount;
 
                                       let callRemaining = perCallTime * (callsCount - 1 - i);
                                       if (callRemaining < 0) callRemaining = 0;
 
-                                      const callMin = Math.floor(perCallTime / 60);
-                                      const callSec = Math.floor(perCallTime % 60);
+                                      const durationLeft = callDurations[idx]?.[i] || 0;
+                                      const callMin = Math.floor(durationLeft / 60);
+                                      const callSec = durationLeft % 60;
+
 
                                       return (
                                         <div
@@ -464,7 +495,6 @@ const LiveActivityMonitoring = () => {
                                             <span className="font-medium text-sm font-mono">
                                               {`${callMin}:${String(callSec).padStart(2, "0")}`}
                                             </span>
-
                                           </div>
 
                                           <div className="flex gap-2">
@@ -550,7 +580,7 @@ const LiveActivityMonitoring = () => {
         ) : null}
 
         {activeNavTab === "Tables" ? (
-          <div className="bg-white mt-3 py-4 px-0">
+          <div className="bg-white mt-3 py-2 px-0">
             <div className="mb-4 flex flex-row items-center justify-between">
               <Search />
               <div className="flex flex-row items-center gap-3">
@@ -695,7 +725,7 @@ const LiveActivityMonitoring = () => {
               </Form>
             }
             primaryButtonText="Accept"
-            primaryButtonColor="text-green-500 border border-green-500 hover:bg-green-500 hover:text-white"
+            primaryButtonColor="border border-success bg-success text-white"
             onPrimaryAction={handleSubmit}
           />
         )}
@@ -733,7 +763,7 @@ const LiveActivityMonitoring = () => {
               </Form>
             }
             primaryButtonText="Reject"
-            primaryButtonColor="text-red-500 border border-red-500 hover:bg-red-500 hover:text-white"
+            primaryButtonColor="text-white border border-danger bg-danger"
             onPrimaryAction={handleSubmit}
           />
         )}

@@ -3,7 +3,7 @@ import { Mutex } from "async-mutex";
 
 // create mutex
 const mutex = new Mutex();
-
+// http://localhost:8080/api
 const baseQuery = fetchBaseQuery({
   baseUrl: "http://3.6.227.166/api",
   prepareHeaders: (headers) => {
@@ -61,6 +61,6 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
 export const service = createApi({
   reducerPath: "service",
   baseQuery: baseQueryWithReauth,
-  tagTypes: ["ApprovalVerification"],
+  tagTypes: ["ApprovalVerification", "OnboardingMenu", "Profile", "Bank", "Tax"],
   endpoints: (builder) => ({}),
 });

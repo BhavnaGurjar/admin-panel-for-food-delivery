@@ -1,6 +1,7 @@
 import React from "react";
 
-const DeliveryTimingModal = ({ show, onClose }) => {
+const DeliveryTimingModal = ({ show, optHours, onClose }) => {
+  const schedule = optHours;
   const scheduleData = [
     {
       day: "Monday",
@@ -28,7 +29,7 @@ const DeliveryTimingModal = ({ show, onClose }) => {
   return (
     <div className="fixed inset-0 w-full flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white rounded-xl shadow-lg w-88 max-w-2xl mx-4">
-        {/* Header + Table */}
+        {/* Header + Table */}.
         <div className="p-6">
           <h4 className="text-blue-700 font-semibold text-xl mb-4">
             Delivery Timing
@@ -44,45 +45,51 @@ const DeliveryTimingModal = ({ show, onClose }) => {
                 </tr>
               </thead>
               <tbody>
-                {scheduleData.map((daySchedule, index) => (
-                  <React.Fragment key={index}>
-                    <tr>
-                      <td
-                        className="py-3 px-4 border-b align-center"
-                        rowSpan={daySchedule.slots.length || 1}
-                      >
-                        {daySchedule.day}
-                      </td>
-                      {daySchedule.slots.length > 0 ? (
-                        <>
-                          <td className="py-3 px-4 border-b">
-                            {daySchedule.slots[0].slot}
+                {
+                    Object.entries(schedule).map(([day, daySchedule], index) => (
+                      <React.Fragment key={index}>
+                        <tr>
+                          <td
+                            className="py-3 px-4 border-b align-center"
+                            rowSpan={daySchedule.open && daySchedule.slots.length > 0 ? daySchedule.slots.length : 1}
+                          >
+                            {day}
                           </td>
-                          <td className="py-3 px-4 border-b">
-                            {daySchedule.slots[0].startTime}
-                          </td>
-                          <td className="py-3 px-4 border-b">
-                            {daySchedule.slots[0].endTime}
-                          </td>
-                        </>
-                      ) : (
-                        <td
-                          colSpan="3"
-                          className="py-3 px-4 border-b text-center text-red-600 font-semibold"
-                        >
-                          Restaurant Off
-                        </td>
-                      )}
-                    </tr>
-                    {daySchedule.slots.slice(1).map((slot, slotIndex) => (
-                      <tr key={slotIndex}>
-                        <td className="py-3 px-4 border-b">{slot.slot}</td>
-                        <td className="py-3 px-4 border-b">{slot.startTime}</td>
-                        <td className="py-3 px-4 border-b">{slot.endTime}</td>
-                      </tr>
-                    ))}
-                  </React.Fragment>
-                ))}
+
+                          {daySchedule.open && daySchedule.slots.length > 0 ? (
+                            <>
+                              <td className="py-3 px-4 border-b">
+                                Slot 1
+                              </td>
+                              <td className="py-3 px-4 border-b">
+                                {daySchedule.slots[0].startTime}
+                              </td>
+                              <td className="py-3 px-4 border-b">
+                                {daySchedule.slots[0].endTime}
+                              </td>
+                            </>
+                          ) : (
+                            <td
+                              colSpan="3"
+                              className="py-3 px-4 border-b text-center text-red-600 font-semibold"
+                            >
+                              Restaurant Off
+                            </td>
+                          )}
+                        </tr>
+
+                        {/* Remaining slots */}
+                        {daySchedule.open &&
+                          daySchedule.slots.slice(1).map((slot, slotIndex) => (
+                            <tr key={`${day}-${slotIndex + 1}`}>
+                              <td className="py-3 px-4 border-b">Slot {slotIndex + 2}</td>
+                              <td className="py-3 px-4 border-b">{slot.startTime}</td>
+                              <td className="py-3 px-4 border-b">{slot.endTime}</td>
+                            </tr>
+                          ))}
+                      </React.Fragment>
+                    ))
+                  }
               </tbody>
             </table>
           </div>

@@ -28,8 +28,8 @@ const ViewOrder = () => {
         <button
           className={`px-3 py-2 rounded-lg font-medium transition ${
             active === "orderDetails"
-              ? "bg-[rgba(0,123,255,1)] text-white"
-              : "bg-white text-[rgba(0,123,255,1)] border-[rgba(0,123,255,1)] border"
+              ? "bg-primary text-white"
+              : "bg-white text-primary border-primary border"
           }`}
           onClick={() => setActive("orderDetails")}
         >
@@ -38,8 +38,8 @@ const ViewOrder = () => {
         <button
           className={`px-3 py-2 rounded-lg font-medium transition ${
             active === "ticketHandled"
-         ? "bg-[rgba(0,123,255,1)] text-white"
-              : "bg-white text-[rgba(0,123,255,1)] border-[rgba(0,123,255,1)] border"
+         ? "bg-primary text-white"
+              : "bg-white text-primary border-primary border"
           }`}
           onClick={() => setActive("ticketHandled")}
         >

@@ -60,8 +60,22 @@ import Restaurant from './Restaurant';
 import Settings from './Settings';
 import SystemLogs from './SystemLogs';
 import Terms from './Terms';
+import Home from "./Home";
+import Checked2 from "./Checked2";
+import NotAllowed from "./NotAllowed";
+import Back from './Back'
+import Table from './Table';
+import Ticket from "./Ticket";
+import Hook from "./Hook";
 
 const Icons = {
+  Hook,
+  Table,
+  Ticket,
+  Back,
+  NotAllowed,
+  Checked2,
+  Home,
   Terms,
   SystemLogs,
   Settings,
@@ -123,7 +137,7 @@ const Icons = {
   Header,
   Approve,
   DeliveryPartner,
-  Users 
+  Users,
 };
 
 export default Icons;

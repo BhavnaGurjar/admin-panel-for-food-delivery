@@ -1,6 +1,7 @@
 import { useState } from "react";
 import BasicInfo from "./BasicInfo";
 import DeliveryPenalties from "./DeliveryPenalties";
+import { Icons } from "../../../../../assets";
 
 const BasicDetails = () => {
   const [activeTab, setActiveTab] = useState("basicInfo");
@@ -12,31 +13,41 @@ const BasicDetails = () => {
             ? "Basic Information"
             : "Refunds & Coupons"}
         </h3>
+<div className="flex gap-1 border-b border-gray-300 text-sm font-medium">
+  <button
+    onClick={() => setActiveTab("basicInfo")}
+    className={`flex items-center gap-1 px-2.5 py-1.5 border-b-2 transition-colors duration-200 ${
+      activeTab === "basicInfo"
+        ? "text-primary border-primary"
+        : "text-[rgba(95,94,94,1)] border-transparent hover:text-black"
+    }`}
+  >
+    <Icons.WarnInfo
+      strokeColor={
+        activeTab === "basicInfo" ? "rgba(6,110,255,1)" : "rgba(95,94,94,1)"
+      }
+    />
+    Basic Info
+  </button>
 
-        <div className="flex">
-          <div className="bg-[rgba(246,246,246,1)] p-1.5 rounded-full flex">
-            <button
-              onClick={() => setActiveTab("basicInfo")}
-              className={`rounded-full py-1.5 px-3 border-0 focus:outline-none transition-colors duration-200 ${
-                activeTab === "basicInfo"
-                  ? "bg-primary text-white"
-                  : "bg-transparent text-[rgba(95,94,94,1)] hover:text-black"
-              }`}
-            >
-              Basic Info
-            </button>
-            <button
-              onClick={() => setActiveTab("refunds&Coupans")}
-              className={`rounded-full py-1.5 px-3 border-0 focus:outline-none transition-colors duration-200 ${
-                activeTab === "refunds&Coupans"
-                  ? "bg-primary text-white"
-                  : "bg-transparent text-[rgba(95,94,94,1)] hover:text-black"
-              }`}
-            >
-              Refunds & Coupons
-            </button>
-          </div>
-        </div>
+  <button
+    onClick={() => setActiveTab("refunds&Coupans")}
+    className={`flex items-center gap-1 px-2.5 py-1.5 border-b-2 transition-colors duration-200 ${
+      activeTab === "refunds&Coupans"
+        ? "text-primary border-primary"
+        : "text-[rgba(95,94,94,1)] border-transparent hover:text-black"
+    }`}
+  >
+    <Icons.Hook
+      strokeColor={
+        activeTab === "refunds&Coupans" ? "rgba(6,110,255,1)" : "rgba(95,94,94,1)"
+      }
+    />
+    Refunds & Coupons
+  </button>
+</div>
+
+
       </div>
 
       {activeTab === "basicInfo" ? <BasicInfo /> : <DeliveryPenalties />}

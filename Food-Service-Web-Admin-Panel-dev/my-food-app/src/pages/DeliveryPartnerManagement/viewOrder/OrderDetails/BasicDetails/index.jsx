@@ -14,7 +14,7 @@ const BasicDetails = () => {
         </h3>
 
         <div className="flex">
-          <div className="bg-gray p-2 rounded-full flex flex-row gap-2 mb-3">
+          <div className="bg-gray p-2 rounded-full bg-wild-sand flex flex-row gap-2 mb-3">
             <button
               onClick={() => setActiveTab("basicInfo")}
               className={`rounded-full px-2 py-2 border-0 text-secondary ${

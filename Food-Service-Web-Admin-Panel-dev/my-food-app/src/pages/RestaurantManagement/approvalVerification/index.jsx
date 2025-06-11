@@ -13,19 +13,19 @@ import { useGetTicketsForVerificationQuery } from "../../../apis/ticket";
 
 const ApprovalVerification = () => {
   const navigate = useNavigate();
-  const [selectedStatusFilter, setSelectedStatusFilter] = useState(null);
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState([]); 
   const [searchTerm, setSearchTerm] = useState(null);
   const [pageNo, setPageNo] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  const filter = {
-    pageNo,
-    pageSize,
-    status: selectedStatusFilter,
-    name: searchTerm,
-    startDate: null,
-    endDate: null,
-  };
+ const filter = {
+  pageNo,
+  pageSize,
+  status: selectedStatusFilter.length > 0 ? selectedStatusFilter : null,
+  name: searchTerm,
+  startDate: null,
+  endDate: null,
+};
 
   const { data: response, isLoading: isGetLoading } =
     useGetTicketsForVerificationQuery({
@@ -37,12 +37,16 @@ const ApprovalVerification = () => {
 
   const statusFilterOptions = useMemo(() => [
     {
-      label: `Pending (${applicationStats.approvedApplication || 0})`,
-      value: "APPROVED",
+      label: `Pending (${applicationStats.pendingApplication || 0})`,
+      value: "PENDING",
     },
     {
       label: `Rejected (${applicationStats.rejectedApplication || 0})`,
       value: "REJECTED",
+    },
+    {
+      label: `Approve (${applicationStats.approveApplication || 0})`,
+      value: "APPROVED",
     },
   ], [applicationStats]);
 
@@ -73,17 +77,27 @@ const ApprovalVerification = () => {
       dataIndex: "verificationStatus",
       type: "custom",
       render: (value) => (
-        <div
-          className={`rounded-[0.375rem] text-[0.75rem] font-medium flex items-center justify-center
-            ${
-              value === "APPROVED"
-                ? "text-[rgba(250,173,20,1)] bg-[rgba(255,253,211,1)] border-[0.063rem] border-[rgba(250,173,20,1)] w-[4.313rem] h-[1.625rem]"
-                : "bg-[rgba(255,77,79,0.1)] text-[rgba(255,77,79,1)] border-[0.063rem] border-[rgba(255,77,79,1)] w-[4.313rem] h-[1.625rem]"
-            }`}
-        >
-          {value === "APPROVED" ? <span>Pending</span> : <span>Rejected</span>}
-        </div>
-      ),
+  <div
+    className={`rounded-[0.375rem] text-[0.75rem] font-medium flex items-center justify-center w-[4.313rem] h-[1.625rem] ${
+      value === "PENDING"
+        ? "text-warning bg-warning-subtle border-[0.063rem] border-warning"
+        : value === "REJECTED"
+        ? "text-danger bg-danger-subtle border-[0.063rem] border-danger"
+        : value === "APPROVED"
+        ? "bg-[rgba(3,188,68,0.1)] text-[rgba(3,188,68,1)] border-[0.063rem] border-[rgba(3,188,68,1)]"
+        : ""
+    }`}
+  >
+    {value === "PENDING"
+      ? "Pending"
+      : value === "REJECTED"
+      ? "Rejected"
+      : value === "APPROVED"
+      ? "Approved"
+      : ""}
+  </div>
+)
+
     },
     {
       title: "Action",
@@ -92,14 +106,18 @@ const ApprovalVerification = () => {
       render: (_, row) => (
         <button
           className="flex justify-center items-center p-1 border border-transparent hover:border-[rgba(209,213,219,1)] hover:bg-[rgba(243,244,246,1)] rounded-md w-16"
-          onClick={() =>
-            navigate(
-              `/restaurant-management/approvals/restaurant-info/${row.id}/${row.restaurantId}/${row.verificationStatus}/${row.message}/${row.rejectionStep}/1`
-            )
-          }
+         onClick={() => {
+  const message = row.message ? encodeURIComponent(row.message) : "null";
+  const rejectionStep = row.rejectionStep ?? "null";
+
+  navigate(
+    `/restaurant-management/approvals/restaurant-info/${row.restaurantDisplayId}/${row.id}/${row.restaurantId}/${row.verificationStatus}/${rejectionStep}/1`
+  );
+}}
+
         >
           <Icons.Eye />
-          <span className="pl-1 text-sm"> View</span>
+          <span className="pl-1 text-sm text-blue">View</span>
         </button>
       ),
     },
@@ -120,27 +138,24 @@ const ApprovalVerification = () => {
             <Search setSearchTerm={setSearchTerm} />
           </div>
           <div className="flex items-center gap-4 p-2 relative">
-     <CustomFilterDropdown
+    <CustomFilterDropdown
   filterOptions={statusFilterOptions}
-  value={
-    statusFilterOptions.find((opt) => opt.value === selectedStatusFilter)
-      ?.label || "Status"
-  }
-  selectedCount={tableData.length} 
-  handleOnChange={(label) => {
-    const selectedOption = statusFilterOptions.find(
-      (opt) => opt.label === label
-    );
-    setSelectedStatusFilter(selectedOption?.value ?? null);
+  value={selectedStatusFilter}
+  selectedCount={selectedStatusFilter.length || null} // don't show 0
+  handleOnChange={(newSelected) => {
+    setSelectedStatusFilter(newSelected);
   }}
 />
+
 
 
           </div>
         </div>
 
         <div className="mt-6">
-          <CustomTable columns={columns} data={tableData} />
+          <div className="shadow-md">
+            <CustomTable columns={columns} data={tableData} />
+          </div>
           {tableData.length > 0 ? (
             <PaginationRow
               totalResults={totalResults}

@@ -49,7 +49,7 @@ const DateRangeDropdown = ({ onDateRangeChange, selectedRange }) => {
     <div className="relative" ref={pickerRef}>
       <button
         onClick={() => setShowPicker(!showPicker)}
-        className="text-black hover:bg-black-10 flex items-center justify-between gap-2 font-medium rounded-lg border border-black-10 py-2 px-4 bg-transparent"
+        className="text-black text-sm hover:bg-black-10 flex items-center justify-between gap-2 font-medium rounded-lg border border-black-10 py-2 px-4 bg-transparent"
       >
         <Icons.Filter />
         {range.startDate

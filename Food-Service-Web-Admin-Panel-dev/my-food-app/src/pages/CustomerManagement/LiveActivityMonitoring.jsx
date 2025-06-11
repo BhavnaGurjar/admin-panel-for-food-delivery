@@ -166,28 +166,27 @@ useEffect(() => {
                 {stage.name === "Final Status" && (
                   <>
 
-                    <div className="w-full flex justify-center">
-                      <div className="flex text-xs mt-2 bg-[rgba(246,246,246,1)] rounded-full p-1 gap-1">
-                        <button
-                          className={`border-0 px-1.5 py-2 rounded-full ${finalStatusTab === "Delivered"
-                            ? "bg-primary font-medium text-white"
-                            : "bg-transparent text-[rgba(95,94,94,1)] hover:text-black"
-                            }`}
-                          onClick={() => setFinalStatusTab("Delivered")}
-                        >
-                          Delivered
-                        </button>
-                        <button
-                          className={`border-0 px-1.5 py-2 rounded-full ${finalStatusTab === "Cancelled"
-                            ? "bg-primary font-medium text-white"
-                            : "bg-transparent text-[rgba(95,94,94,1)] hover:text-black"
-                            }`}
-                          onClick={() => setFinalStatusTab("Cancelled")}
-                        >
-                          Cancelled
-                        </button>
-                      </div>
-                    </div>
+                   <div className="w-fit flex border-b border-gray-300 text-sm font-medium">
+  {["Delivered", "Cancelled"].map((tab) => {
+    const isActive = finalStatusTab === tab;
+    const iconColor = isActive ? "#0670FF" : "rgba(95,94,94,1)";
+
+    return (
+      <button
+        key={tab}
+        className={`flex items-center px-1 py-1 border-b-2 text-xs ${
+          isActive
+            ? "text-primary border-[rgba(6,110,255,1)]"
+            : "text-[rgba(95,94,94,1)] border-transparent hover:text-black"
+        }`}
+        onClick={() => setFinalStatusTab(tab)}
+      >
+        {tab}
+      </button>
+    );
+  })}
+</div>
+
 
 
                     {/* Show Total between Delivered and Sub-tabs */}
@@ -304,20 +303,33 @@ useEffect(() => {
       </div>
 
       <div className="shadow-sm bg-white rounded-md mt-3 p-3">
-        <div className="w-fit px-2 py-1 rounded-full flex gap-2 bg-[rgba(246,246,246,1)]">
-          {["Tickets", "Tables"].map((tab) => (
-            <button
-              key={tab}
-              className={`px-4 py-2 text-sm rounded-full transition-all duration-200 ${activeNavTab === tab
-                ? "bg-primary text-white font-medium"
-                : "bg-transparent text-[rgba(95,94,94,1)] hover:text-black"
-                }`}
-              onClick={() => setActiveNavTab(tab)}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
+       <div className="w-fit px-1 py-0.5 flex">
+  {["Tables", "Tickets"].map((tab) => {
+    const isActive = activeNavTab === tab;
+    const strokeColor = isActive
+      ? "rgba(6,110,255,1)"
+      : "rgba(95,94,94,1)";
+
+    return (
+      <button
+        key={tab}
+        className={`py-1.5 px-2.5 text-sm font-medium flex items-center gap-1 border-b ${
+          isActive
+            ? "text-primary border-[rgba(6,110,255,1)] border-b-2"
+            : "bg-transparent text-[rgba(95,94,94,1)] hover:text-black border-gray-300"
+        }`}
+        onClick={() => setActiveNavTab(tab)}
+      >
+        {tab === "Tickets" ? (
+          <Icons.Ticket strokeColor={strokeColor} />
+        ) : (
+          <Icons.Table strokeColor={strokeColor} />
+        )}
+        {tab}
+      </button>
+    );
+  })}
+</div>
 
         {activeNavTab === "Tickets" ? (
           <div className="p-2 border border-gray-200 rounded-xl mt-3">
@@ -467,13 +479,13 @@ useEffect(() => {
                 <div className="flex gap-2 text-base mt-3">
                   <button
                     onClick={() => setRejectModalShow(true)}
-                    className="bg-transparent text-red-500 px-4 py-1.5 border border-red-500 rounded-full text-sm hover:bg-red-500 hover:text-white transition-all duration-300"
+                    className="text-danger bg-danger-subtle px-4 py-1.5 border border-danger rounded-full text-sm hover:bg-danger hover:text-white transition-all duration-300"
                   >
                     Reject
                   </button>
                   <button
                     onClick={() => setAcceptModalShow(true)}
-                    className="hover:bg-green-500 hover:text-white border text-green-500 border-green-500 px-4 py-1.5 rounded-full text-sm transition-all duration-300"
+                    className="text-white bg-primary hover:bg-[#2c69cc] rounded-full px-4 py-1.5 text-sm transition-all duration-300"
                   >
                     Accept
                   </button>
@@ -658,7 +670,7 @@ useEffect(() => {
               </Form>
             }
             primaryButtonText="Accept"
-            primaryButtonColor="text-green-500 border border-green-500 hover:bg-green-500 hover:text-white"
+            primaryButtonColor="text-white bg-success hover:bg-green-600"
             onPrimaryAction={handleSubmit}
           />
         )}
@@ -696,7 +708,7 @@ useEffect(() => {
               </Form>
             }
             primaryButtonText="Reject"
-            primaryButtonColor="text-red-500 border border-red-500 hover:bg-red-500 hover:text-white"
+            primaryButtonColor="text-white bg-danger hover:bg-red-600"
             onPrimaryAction={handleSubmit}
           />
         )}

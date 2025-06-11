@@ -20,8 +20,9 @@ module.exports = {
         "blue-50": "#00014580",
         "blue-20": "#00014533",
         kilamanjaro: "#220D03",
-        "black-20": "#00000033",
         "black-10": "#0000001A",
+        "black-20": "#00000033",
+        "black-30": "#0000004D",
         "black-40": "#00000066",
         "warning-subtle": "#FFC10733",
         "primary-subtle": "#FD7E141A",
@@ -35,6 +36,7 @@ module.exports = {
         "rejected-subtle": "#F11F461A",
         scorpion: "#5F5E5E",
         "in-review": "#0285FF1A",
+        "wild-sand": "#F6F6F6",
       },
       fontFamily: {
         satoshi: ["Satoshi", "sans-serif"],

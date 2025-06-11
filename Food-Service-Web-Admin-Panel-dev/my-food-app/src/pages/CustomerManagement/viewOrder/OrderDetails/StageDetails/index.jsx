@@ -16,7 +16,7 @@ const StageDetails = () => {
 
   const renderIcon = () => {
     const baseClasses =
-      "mb-2 flex items-center justify-center rounded-full p-2";
+      "flex items-center justify-center rounded-full p-2";
     switch (activeButton) {
       case "Incoming":
         return (
@@ -61,35 +61,46 @@ const StageDetails = () => {
 
   return (
     <>
-      <div className="flex justify-between py-3">
-        <div className="flex items-center justify-center gap-2">
-          {renderIcon()}
-          <h4 className="text-lg font-medium mb-3">{activeButton}</h4>
-        </div>
-        <div className="flex items-center justify-center gap-1">
-          {[
-            "Incoming",
-            "Preparing",
-            "Ready",
-            "Picked Up",
-            "Reached Drop",
-            "Final",
-          ].map((stage) => (
-            <button
-              key={stage}
-              onClick={() => handleButtonClick(stage)}
-              className={`rounded-full md:text-xs lg:text-base md:font-medium xl:text-sm lg:font-normal py-2 px-3 xl:py-1.5 xl:px-2.5 border border-black-10 transition-colors duration-200  ${
-                activeButton === stage
-                  ? "bg-primary text-white border-transparent"
-                  : "border-primary text-primary bg-transparent"
-              }`}
-            >
-              {stage}
-            </button>
-          ))}
-        </div>
-      </div>
-      <div className="border border-black-10 px-1 rounded-2xl">
+    <div className="flex justify-between py-3">
+  <div className="flex items-center justify-center gap-2 mt-1">
+    {renderIcon()}
+    <h4 className="lg:text-lg text-sm font-medium">{activeButton}</h4>
+  </div>
+
+  <div className="flex items-center justify-center border-[rgba(95,94,94,0.5)] text-sm font-medium">
+  {[
+    { label: "Incoming", icon: Icons.Bell },
+    { label: "Preparing", icon: Icons.Utensils },
+    { label: "Ready", icon: Icons.Checked },
+    { label: "Picked Up", icon: Icons.Truck },
+    { label: "Reached Drop", icon: Icons.Location },
+    { label: "Final", icon: Icons.Checked },
+  ].map(({ label, icon: Icon }) => {
+    const isActive = activeButton === label;
+    const strokeColor = isActive
+      ? "rgba(6,110,255,1)"
+      : "rgba(95,94,94,1)";
+
+    return (
+      <button
+        key={label}
+        onClick={() => handleButtonClick(label)}
+        className={`lg:px-3 py-2 md:px-2 border-b md:text-xs lg:text-sm flex items-center md:gap-0.5 lg:gap-1 transition-colors duration-200 ${
+          isActive
+            ? "text-primary border-b-2 border-[rgba(6,110,255,1)]"
+            : "text-[rgba(95,94,94,1)] border-gray-300"
+        }`}
+      >
+        <Icon strokeColor={strokeColor} />
+        {label}
+      </button>
+    );
+  })}
+</div>
+
+</div>
+
+      <div className="border border-black-10 px-1 rounded-2xl mt-3">
         <div className="mt-3">
           {activeButton === "Incoming" && <Incoming />}
           {activeButton === "Preparing" && <Preparing />}
