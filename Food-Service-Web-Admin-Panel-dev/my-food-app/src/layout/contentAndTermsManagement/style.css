@@ -1,0 +1,18 @@
+.resto-sidebar-container {
+  background-color: #f9fafc;
+}
+.resto-layout-container {
+  height: 100vh;
+}
+.resto-layout-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.resto-layout-container::-webkit-scrollbar-track {
+  background: #f0f0f0;
+}
+
+.resto-layout-container::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.407);
+  border-radius: 20px;
+}

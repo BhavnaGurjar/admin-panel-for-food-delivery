@@ -1,0 +1,10 @@
+.onfocus:hover{
+    border: 1px solid #474ae8 !important;
+    transition: border 0.ms ease;
+  }
+.field-height{
+  height: 53px;
+}
+.outline-none{
+  outline: none;
+}

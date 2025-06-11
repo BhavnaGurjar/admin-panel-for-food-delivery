@@ -1,0 +1,91 @@
+.accordion-header {
+  font-weight: 600;
+}
+
+.accordion-content ul {
+  padding-left: 20px;
+  margin: 0;
+}
+
+.btn-outline-orange {
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  border-radius: 5px;
+  padding: 10px 15px;
+  font-weight: medium;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.btn-outline-orange:hover {
+  background-color: var(--primary);
+  color: #fff;
+}
+/* Container styles */
+.custom-tabs-container {
+  display: inline-flex;
+  background-color: #f5f5f5;
+  border-radius: 25px;
+  padding: 5px;
+  width: fit-content;
+}
+
+/* Tab button styles */
+.custom-tab {
+  flex: 1;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-size: 14px;
+  background-color: transparent;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+/* Active tab styles */
+.custom-tab-active {
+  background-color: var(--primary);
+  color: white;
+  font-weight: 600;
+}
+
+/* Tabs Container */
+.pending-tabs-container {
+  background-color: #f5f5f5;
+  width: fit-content;
+}
+
+/* Tab Button */
+.pending-tab {
+  flex: 1;
+  border: none;
+  border-radius: 25px;
+  font-size: 14px;
+  background-color: transparent;
+  color: #555;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.3s ease;
+  width: 140px;
+  padding: 10px 0;
+}
+
+/* Active Tab */
+.pending-tab-active {
+  background-color: #28a745; /* Green for active tab */
+  color: white;
+  font-weight: 600;
+}
+
+/* Hover Effect for Inactive Tabs */
+.pending-tab:hover:not(.pending-tab-active) {
+  color: #000;
+  background-color: #e9e9e9;
+}
+.history-card {
+  border-left: 3.5px solid var(--primary);
+}
+.table-cell-custom {
+  min-width: 160px;
+}

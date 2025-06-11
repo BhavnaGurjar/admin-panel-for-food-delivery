@@ -1,0 +1,83 @@
+.request-changed-button {
+  border: 1px solid var(--yellow);
+  background-color: transparent;
+  color: var(--yellow);
+}
+
+.tabs-container {
+  box-shadow: 1px 1px 10px 2px #0000000d;
+}
+
+.tabs-row {
+  border-bottom: 1px solid #0001453a;
+}
+
+.active-bottom {
+  border-bottom: 3px solid var(--text-blue) !important;
+}
+
+.bg-custom-gray {
+  background-color: #e9e9e980;
+  color: #0001454d;
+}
+
+.category-option-div {
+  border: 1px solid #0000004d;
+}
+
+.category-checkbox {
+  width: 16px;
+  height: 16px;
+}
+
+.subcategory-option-div {
+  box-shadow: 1px 1px 8px 2px #0000000d;
+  border: 1px solid #0000001a;
+  border-radius: 15px;
+}
+
+.bg-lightgreen {
+  background-color: #e1ffea;
+}
+
+.text-green {
+  color: #03bc44;
+}
+
+.custom-dot {
+  height: 8px;
+  width: 8px;
+  border-radius: 100%;
+}
+
+.red-dot {
+  background-color: var(--red);
+}
+
+.yellow-dot {
+  background-color: var(--yellow);
+}
+
+.green-dot {
+  background-color: var(--green);
+}
+
+.action-toggler::after {
+  content: none;
+}
+
+.shadow-custom {
+  box-shadow: 1px 1px 10px 2px #0000000d;
+}
+
+.custom-label-color {
+  color: #220d0399;
+}
+
+.bg-custom-primary-light {
+  background-color: #fd631f1a;
+}
+
+.custom-border-green {
+  border: 1px solid var(--green);
+}
